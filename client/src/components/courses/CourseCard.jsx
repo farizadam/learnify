@@ -3,7 +3,7 @@ function CourseCard({ title = 'Course title', description = 'Course description'
     <article>
       <h3>{title}</h3>
       <p>{description}</p>
-      //commentaire
+
     </article>
   )
 }
