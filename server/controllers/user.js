@@ -1,11 +1,10 @@
-import mongoose from 'mongoose';
-import userModel from '../models/User.js';
+const User = require('../models/User');
 
 // Get user info
 
 const getUserInfo = async (req, res) => {
     try {
-        const user = await userModel.findById(req.user.id).select('-password');
+        const user = await User.findById(req.user.id).select('-password');
         
         // Exclude password
         res.json(user);
@@ -15,4 +14,4 @@ const getUserInfo = async (req, res) => {
 };
 
 
-export { getUserInfo };
+module.exports = { getUserInfo };

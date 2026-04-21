@@ -12,6 +12,8 @@ connectDB();
 //routes
 const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
+const courseRoutes = require('./routes/courseRoutes');
+const quizRoutes = require('./routes/quizRoutes');
 
 
 // Middleware
@@ -21,6 +23,8 @@ app.use(express.json());
 // Use routes
 app.use('/api/auth', authRoutes);
 app.use('/api', userRoutes);
+app.use('/api/courses', courseRoutes);
+app.use('/api/quizzes', quizRoutes);
 
 
 
