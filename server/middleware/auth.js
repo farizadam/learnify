@@ -27,4 +27,6 @@ const verifyToken = (req, res, next) => {
 };
 
 // Exporting as an object so they can be imported individually
-module.exports = { register, login, verifyToken };
+module.exports = {
+    verifyToken,
+};

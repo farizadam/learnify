@@ -1,20 +1,23 @@
-import mongoose from "mongoose";
+const mongoose = require("mongoose");
 
-const {schema} = mongoose;
+const {Schema} = mongoose;
 
-const userSchema = new schema({
-
-    firstName: String,
-    lastName: String,
-    email: String,
-    password: String,
-    role:{ ['student', 'teacher', 'admin'],default: 'student' },
-    enrolledCourses: [{type: mongoose.Types.ObjectId, ref: 'Course'}],
-    teachingCourses: [{type: mongoose.Types.ObjectId, ref: 'Course'}],
-    isVerified: {type: Boolean, default: false},
+const userSchema = new Schema({
+    firstName: { type: String, required: true },
+    lastName: { type: String, required: true },
+    email: { type: String, required: true, unique: true },
+    password: { type: String, required: true },
+    role: { 
+        type: String, 
+        enum: ['student', 'teacher', 'admin'], 
+        default: 'student' 
+    },
+    // Tip: Use virtuals later to fetch these instead of hard-storing them
+    enrolledCourses: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Course' }],
+    taughtCourses: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Course' }],
+    isVerified: { type: Boolean, default: false },
     bio: { type: String, maxlength: 250 },
+}, { timestamps: true });
 
-});
 
-
-export default mongoose.model('User', userSchema);
+module.exports = mongoose.model('User', userSchema);

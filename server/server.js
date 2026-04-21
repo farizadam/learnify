@@ -3,13 +3,16 @@ const app = express();
 const dotenv = require('dotenv');
 const cors = require('cors');
 const PORT = 3000;
-
+const mongoose = require('mongoose');
+// Load environment variables
+dotenv.config();
+// Connect to MongoDB
+const connectDB = require('./config/db');
+connectDB();
 //routes
 const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
 
-// Load environment variables
-dotenv.config();
 
 // Middleware
 app.use(cors());
@@ -19,6 +22,11 @@ app.use(express.json());
 app.use('/api/auth', authRoutes);
 app.use('/api', userRoutes);
 
+
+
+app.get('/', (req, res) => {
+  res.send('Welcome to Learnify API');
+});
 
 
 // Start server
