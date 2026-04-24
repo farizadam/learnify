@@ -74,6 +74,41 @@
         // For now, the frontend can simply delete the token to "log out".
         res.status(200).json({ message: "Logged out successfully (frontend should delete the token)" });
     };
+const refreshToken = async (req, res) => {
+    try {
+        const { token } = req.body;
+        if (!token) return res.status(400).json({ message: "No token provided" });
 
+        let decoded;
+        try {
+            decoded = jwt.verify(token, process.env.JWT_SECRET);
+        } catch (err) {
+            if (err.name === 'TokenExpiredError') {
+                decoded = jwt.decode(token); 
+            } else {
+                return res.status(401).json({ message: "Invalid token" });
+            }
+        }
 
-    module.exports = {register, login, logout };
+        // Check if the decoded payload actually has data
+        if (!decoded) return res.status(401).json({ message: "Could not decode token" });
+
+        const newToken = jwt.sign(
+            {
+                // Use BOTH OR check which one exists to be safe
+                id: decoded.id || decoded._id, 
+                role: decoded.role,
+                email: decoded.email,
+                firstName: decoded.firstName,
+                lastName: decoded.lastName
+            },
+            process.env.JWT_SECRET,
+            { expiresIn: '1h' }
+        );
+
+        res.status(200).json({ token: newToken });
+    } catch (error) {
+        res.status(500).json({ message: "Server error during refresh" });
+    }
+};
+module.exports = {register, login, logout, refreshToken };
