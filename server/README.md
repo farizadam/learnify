@@ -21,8 +21,6 @@ The JWT is returned by `POST /api/auth/login` and can be reused until it expires
 - `/api/auth`
 - `/api/user`
 - `/api/courses`
-- `/api/quizzes`
-
 ## Auth Endpoints
 
 ### POST `/api/auth/register`
