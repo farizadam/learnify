@@ -99,4 +99,45 @@ const enrollInCourse = async (req, res) => {
         res.status(500).json({ message: "Something went wrong while enrolling in the course" });
     }
 };
-module.exports = { createCourse, getAllCourses, getCourseById, enrollInCourse };
+
+const deleteCourse = async (req, res) => {
+    try {
+        const course = await Course.findById(req.params.id);
+
+        // 1. Check existence
+        if (!course) {
+            return res.status(404).json({ message: "Course not found" });
+        }
+
+        // 2. Authorization Check
+        // Use .equals() if req.user.id is an ObjectId, or keep .toString() for safety
+        if (course.instructor.toString() !== req.user.id) {
+            return res.status(403).json({ message: "You are not authorized to delete this course" });
+        }
+
+        // 3. Deletion (Modern Mongoose syntax)
+        await Course.deleteOne({ _id: req.params.id }); 
+        
+        res.json({ message: "Course deleted successfully" });
+
+    } catch (error) {
+        console.error("Delete Error:", error); // Always log the error for debugging
+
+        if (error.kind === 'ObjectId') {
+            return res.status(400).json({ message: "Invalid Course ID format" });
+        }
+        res.status(500).json({ message: "Server error" });
+    }
+};
+
+const getAllLessonsofCourse = async (req, res) => {
+    try {
+        const { courseId } = req.params;
+        const lessons = await Lesson.find({ course: courseId });
+        res.status(200).json({ lessons });
+    } catch (error) {
+        res.status(500).json({ message: error.message || "Something went wrong while fetching lessons" });
+    }
+};
+
+module.exports = { createCourse, getAllCourses, getCourseById, enrollInCourse, deleteCourse, getAllLessonsofCourse };
