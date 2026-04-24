@@ -7,7 +7,6 @@ router.post('/', verifyToken, createCourse);
 router.get('/', getAllCourses);
 router.get('/:id', getCourseById);
 
-router.post('/createCourse', verifyToken, createCourse);
 //router.delete('/courses/:id', verifyToken, deleteCourse);
 router.post('/addLesson', verifyToken,createLesson)
 router.patch('/updateLesson/:lessonId', verifyToken, updateLesson);
