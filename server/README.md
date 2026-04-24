@@ -424,24 +424,6 @@ Status codes:
 - `404` - lesson or associated course not found
 - `500` - update failure
 
-## Quiz Endpoints
-
-### GET `/api/quizzes`
-
-This route is a placeholder for now.
-
-Success response:
-
-```json
-{
-  "message": "Quiz routes are not implemented yet"
-}
-```
-
-Status codes:
-
-- `200` - placeholder response
-
 ## Implemented But Not Routed Yet
 
 These controller functions exist in the codebase but are not currently exposed through Express routes:
