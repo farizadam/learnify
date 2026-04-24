@@ -10,4 +10,5 @@ router.post('/login', login);
 // Logout route
 router.post('/logout', verifyToken, logout);
 
+
 module.exports = router;

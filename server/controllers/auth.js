@@ -26,10 +26,11 @@
                 bio: bio || '',
                 isVerified: false,
             });
-
+            console.log("register was called with:", req.body);
             await newUser.save();
             res.status(201).json({ message: "User created successfully" });
         } catch (error) {
+            console.error("Registration error:", error);
             res.status(500).json({ message: "Something went wrong during registration" });
         }
     };
