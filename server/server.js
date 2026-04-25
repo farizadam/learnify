@@ -1,8 +1,10 @@
 const express = require('express');
 const app = express();
 const PORT = 3000;
+const quizRoutes = require('./routes/quiz.routes');
 
 app.use(express.json());
+app.use('/api/quizzes', quizRoutes);
 
 // Routes
 app.get('/', (req, res) => {
