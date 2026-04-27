@@ -69,36 +69,7 @@ const getCourseById = async (req, res) => {
     }
 };
 
-const enrollInCourse = async (req, res) => {
-    try {
-        const course = await Course.findById(req.params.id);
-        
-        if (!course) {
-            return res.status(404).json({ message: "Course not found" });
-        }
 
-        // Check if the student is already enrolled
-        if (course.studentsEnrolled.includes(req.user.id)) {
-            return res.status(400).json({ message: "Already enrolled in this course" });
-        }
-
-        // 1. Update the Course document
-        course.studentsEnrolled.push(req.user.id);
-        await course.save();
-
-        // This ensures the course shows up in the student's "My Courses" section
-        await User.findByIdAndUpdate(req.user.id, {
-            $push: { enrolledCourses: course._id }
-        });
-
-        res.json({ message: "Enrolled in course successfully" });
-    } catch (error) {
-        if (error.kind === 'ObjectId') {
-            return res.status(400).json({ message: "Invalid Course ID format" });
-        }
-        res.status(500).json({ message: "Something went wrong while enrolling in the course" });
-    }
-};
 
 const deleteCourse = async (req, res) => {
     try {
@@ -140,4 +111,44 @@ const getAllLessonsofCourse = async (req, res) => {
     }
 };
 
-module.exports = { createCourse, getAllCourses, getCourseById, enrollInCourse, deleteCourse, getAllLessonsofCourse };
+
+const updateCourse = async (req, res) => {
+    try {
+        const { title, description, level, category } = req.body;
+        const course = await Course.findById(req.params.id);
+        if (!course) {
+            return res.status(404).json({ message: "Course not found" });
+        }
+
+        if(req.user.role !== 'teacher' || course.instructor.toString() !== req.user.id) {
+            return res.status(403).json({ message: "You can only update your own courses" });
+        }
+
+        course.title = title || course.title;
+        course.description = description || course.description;
+        course.level = level || course.level;
+        course.category = category || course.category;
+
+        await course.save();
+        res.status(200).json({ message: "Course updated successfully", course });
+    }
+    catch (error) {
+        console.error("Update Error:", error);
+        if (error.kind === 'ObjectId') {
+            return res.status(400).json({ message: "Invalid Course ID format" });
+        }
+
+        res.status(500).json({ message: "Something went wrong while updating the course" });
+    }
+};
+
+const getAllCategories = async (req, res) => {
+    try {
+        const categories = await Course.distinct('category');
+        res.status(200).json({ categories });
+    } catch (error) {
+        res.status(500).json({ message: "Something went wrong while fetching categories" });
+    }
+};
+
+module.exports = { createCourse, getAllCourses, getCourseById, deleteCourse, getAllLessonsofCourse,updateCourse, getAllCategories};

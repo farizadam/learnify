@@ -115,4 +115,33 @@ const enrollLesson = async (req, res) => {
     }
 };
 
-module.exports = { getUserInfo, updateUserInfo, deleteUser, enrollCourse,enrollLesson };
+
+const getAllCoursesOfInstructor = async (req, res) => {
+    try {
+        const instructorId = req.user.id;
+
+        if (!instructorId) {
+            return res.status(401).json({ message: 'Unauthorized' });
+        }
+
+        const courses = await Course.find({ instructor: instructorId }).populate('instructor', 'firstName lastName');
+        res.json({ courses });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+
+const getAllCoursesEnrolled = async (req, res) => {
+    try {
+        const user = await User.findById(req.user.id).populate('enrolledCourses');
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+        res.status(200).json({ enrolledCourses: user.enrolledCourses });
+    } catch (error) {
+        res.status(500).json({ message: error.message || "Something went wrong while fetching enrolled courses" });
+    }
+};
+
+module.exports = { getUserInfo, updateUserInfo, deleteUser, enrollCourse,enrollLesson, getAllCoursesOfInstructor,getAllCoursesEnrolled };
