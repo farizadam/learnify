@@ -1,6 +1,10 @@
 {
   "name": "learnify-backend",
   "version": "1.0.0",
+<<<<<<< HEAD
+  "private": true
+}
+=======
   "private": true,
   "main": "server.js",
   "scripts": {
@@ -23,3 +27,4 @@
   }
 }
 
+>>>>>>> main
