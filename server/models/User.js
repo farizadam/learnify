@@ -14,6 +14,7 @@ const userSchema = new Schema({
     },
     // Tip: Use virtuals later to fetch these instead of hard-storing them
     enrolledCourses: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Course' }],
+    enrolledLessons: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Lesson' }],
     taughtCourses: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Course' }],
     isVerified: { type: Boolean, default: false },
     bio: { type: String, maxlength: 250 },
