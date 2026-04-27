@@ -21,8 +21,6 @@ The JWT is returned by `POST /api/auth/login` and can be reused until it expires
 - `/api/auth`
 - `/api/user`
 - `/api/courses`
-- `/api/quizzes`
-
 ## Auth Endpoints
 
 ### POST `/api/auth/register`
@@ -425,24 +423,6 @@ Status codes:
 - `403` - user is not allowed to update the lesson
 - `404` - lesson or associated course not found
 - `500` - update failure
-
-## Quiz Endpoints
-
-### GET `/api/quizzes`
-
-This route is a placeholder for now.
-
-Success response:
-
-```json
-{
-  "message": "Quiz routes are not implemented yet"
-}
-```
-
-Status codes:
-
-- `200` - placeholder response
 
 ## Implemented But Not Routed Yet
 
