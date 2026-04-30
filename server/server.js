@@ -14,6 +14,8 @@ const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
 const courseRoutes = require('./routes/courseRoutes');
 const quizRoutes = require('./routes/quizRoutes');
+const lessonRoutes = require('./routes/lessonRoutes');
+const teacherRoutes = require('./routes/teacherRoutes');
 
 
 // Middleware
@@ -22,9 +24,11 @@ app.use(express.json());
 
 // Use routes
 app.use('/api/auth', authRoutes);
-app.use('/api', userRoutes);
+app.use('/api/users', userRoutes);
 app.use('/api/courses', courseRoutes);
 app.use('/api/quizzes', quizRoutes);
+app.use('/api/lessons', lessonRoutes);
+app.use('/api/teacher', teacherRoutes);
 
 
 
