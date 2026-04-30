@@ -18,6 +18,12 @@ const userSchema = new Schema({
     taughtCourses: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Course' }],
     isVerified: { type: Boolean, default: false },
     bio: { type: String, maxlength: 250 },
+    avatar: { type: String, default: '' },
+    socialLinks: {
+        github: { type: String, default: '' },
+        linkedin: { type: String, default: '' },
+        website: { type: String, default: '' }
+    }
 }, { timestamps: true });
 
 
