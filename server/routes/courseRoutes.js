@@ -3,6 +3,7 @@ const router = express.Router();
 const { verifyToken } = require('../middleware/auth');
 const { createCourse, getAllCourses, getCourseById,deleteCourse, getAllLessonsofCourse,updateCourse,getAllCategories} = require('../controllers/course');
 const { createLesson, deleteLesson, getLessonById, updateLesson } = require('../controllers/lesson');
+const { enrollCourse, getAllCoursesOfInstructor } = require('../controllers/user');
 
 router.get('/', getAllCourses);
 router.get('/categories', getAllCategories);
@@ -15,5 +16,9 @@ router.get('/:courseId/lessons', getAllLessonsofCourse);
 router.get('/lesson/:lessonId', getLessonById);
 router.patch('/updateLesson/:lessonId', verifyToken, updateLesson);
 router.patch('/updateCourse/:courseId', verifyToken, updateCourse);
+
+// New endpoints
+router.post('/:courseId/enroll', verifyToken, enrollCourse); // Note: frontend uses :id, wait, controller user.js uses req.params.courseId
+router.get('/teacher/me', verifyToken, getAllCoursesOfInstructor);
 
 module.exports = router;
