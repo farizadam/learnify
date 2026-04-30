@@ -113,5 +113,35 @@ const updateLesson = async (req, res) => {
 
 
 
+const completeLesson = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const userId = req.user.id;
 
-module.exports = { createLesson, deleteLesson, getLessonById, updateLesson };
+        const lesson = await Lesson.findById(id);
+        if (!lesson) {
+            return res.status(404).json({ message: "Lesson not found" });
+        }
+
+        const user = await require('../models/User').findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        if (!lesson.studentsCompleted.includes(userId)) {
+            lesson.studentsCompleted.push(userId);
+            await lesson.save();
+        }
+
+        if (!user.enrolledLessons.includes(id)) {
+            user.enrolledLessons.push(id);
+            await user.save();
+        }
+
+        res.status(200).json({ message: "Lesson marked as complete" });
+    } catch (error) {
+        res.status(500).json({ message: error.message || "Something went wrong completing lesson" });
+    }
+};
+
+module.exports = { createLesson, deleteLesson, getLessonById, updateLesson, completeLesson };
