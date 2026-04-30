@@ -143,5 +143,51 @@ const getAllCoursesEnrolled = async (req, res) => {
         res.status(500).json({ message: error.message || "Something went wrong while fetching enrolled courses" });
     }
 };
+const updateUserProfile = async (req, res) => {
+    try {
+        const { bio, avatar, socialLinks, firstName, lastName } = req.body;
+        const user = await User.findById(req.user.id);
+        
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
 
-module.exports = { getUserInfo, updateUserInfo, deleteUser, enrollCourse,enrollLesson, getAllCoursesOfInstructor,getAllCoursesEnrolled };
+        if (bio !== undefined) user.bio = bio;
+        if (avatar !== undefined) user.avatar = avatar;
+        if (socialLinks !== undefined) user.socialLinks = { ...user.socialLinks, ...socialLinks };
+        if (firstName !== undefined) user.firstName = firstName;
+        if (lastName !== undefined) user.lastName = lastName;
+
+        await user.save();
+        
+        // Return without password
+        const updatedUser = await User.findById(req.user.id).select('-password');
+        res.status(200).json(updatedUser);
+    } catch (error) {
+        res.status(500).json({ message: error.message || "Something went wrong updating profile" });
+    }
+};
+
+const getPublicProfile = async (req, res) => {
+    try {
+        const userId = req.params.id;
+        const user = await User.findById(userId).select('firstName lastName bio avatar socialLinks role');
+        
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        const response = { user };
+
+        if (user.role === 'teacher') {
+            const courses = await Course.find({ instructor: userId }).select('title description level category');
+            response.courses = courses;
+        }
+
+        res.status(200).json(response);
+    } catch (error) {
+        res.status(500).json({ message: error.message || "Something went wrong fetching public profile" });
+    }
+};
+
+module.exports = { getUserInfo, updateUserInfo, deleteUser, enrollCourse, enrollLesson, getAllCoursesOfInstructor, getAllCoursesEnrolled, updateUserProfile, getPublicProfile };
