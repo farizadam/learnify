@@ -1,437 +1,79 @@
-# Learnify Backend API
-
-Backend API for Learnify.
-
-Base URL:
-
-`http://localhost:3000`
-
-All JSON requests should send:
-
-`Content-Type: application/json`
-
-Protected routes require:
-
-`Authorization: Bearer <JWT>`
-
-The JWT is returned by `POST /api/auth/login` and can be reused until it expires.
-
-## Route Groups
-
-- `/api/auth`
-- `/api/user`
-- `/api/courses`
-## Auth Endpoints
-
-### POST `/api/auth/register`
-
-Create a new user.
-
-Request body:
-
-```json
-{
-  "firstName": "John",
-  "lastName": "Doe",
-  "email": "john@example.com",
-  "password": "SecurePass123!",
-  "role": "student",
-  "bio": "Learning web development"
-}
-```
-
-Required fields:
-
-- `firstName`
-- `lastName`
-- `email`
-- `password`
-
-Optional fields:
-
-- `role` - defaults to `student`
-- `bio` - defaults to an empty string, max 250 characters
-
-Success response:
-
-```json
-{
-  "message": "User created successfully"
-}
-```
-
-Status codes:
-
-- `201` - user created
-- `400` - user already exists
-- `500` - registration failure
-
-### POST `/api/auth/login`
-
-Log in with email and password.
-
-Request body:
-
-```json
-{
-  "email": "john@example.com",
-  "password": "SecurePass123!"
-}
-```
-
-Success response:
-
-```json
-{
-  "token": "<jwt-token>"
-}
-```
-
-The token payload includes:
-
-- `id`
-- `role`
-- `email`
-- `firstName`
-- `lastName`
-
-Status codes:
-
-- `200` - login successful
-- `401` - invalid credentials
-- `404` - user not found
-- `500` - login failure
-
-### POST `/api/auth/logout`
-
-Logout is stateless on the server. This endpoint only confirms the action; the frontend should delete the token.
-
-Headers:
-
-`Authorization: Bearer <JWT>`
-
-Success response:
-
-```json
-{
-  "message": "Logged out successfully (frontend should delete the token)"
-}
-```
-
-Status codes:
-
-- `200` - logout acknowledged
-- `401` - missing or invalid token
-
-### POST `/api/auth/refresh-token`
-
-Refresh an expired or active JWT and return a new one.
-
-Request body:
-
-```json
-{
-  "token": "<expired-or-valid-jwt>"
-}
-```
-
-Success response:
-
-```json
-{
-  "token": "<new-jwt-token>"
-}
-```
-
-Status codes:
-
-- `200` - token refreshed
-- `400` - token missing
-- `401` - invalid or undecodable token
-- `500` - refresh failure
-
-## User Endpoints
-
-### GET `/api/user`
-
-Return the authenticated user profile without the password.
-
-Headers:
-
-`Authorization: Bearer <JWT>`
-
-Success response:
-
-```json
-{
-  "user": {
-    "_id": "...",
-    "firstName": "John",
-    "lastName": "Doe",
-    "email": "john@example.com",
-    "role": "student",
-    "enrolledCourses": [],
-    "taughtCourses": [],
-    "isVerified": false,
-    "bio": "Learning web development",
-    "createdAt": "...",
-    "updatedAt": "..."
-  }
-}
-```
-
-Status codes:
-
-- `200` - user returned
-- `401` - missing or invalid token
-- `404` - user not found
-- `500` - fetch failure
-
-## Course Endpoints
-
-### POST `/api/courses`
-
-Create a new course. This route is protected and only available to teachers.
-
-Headers:
-
-`Authorization: Bearer <JWT>`
-
-Request body:
-
-```json
-{
-  "title": "JavaScript Basics",
-  "description": "Learn the fundamentals of JavaScript",
-  "level": "Beginner",
-  "category": "Programming"
-}
-```
-
-Required fields:
-
-- `title`
-- `description`
-- `category`
-
-Optional field:
-
-- `level` - `Beginner`, `Intermediate`, or `Advanced` (defaults to `Beginner`)
-
-Success response:
-
-```json
-{
-  "message": "Course created successfully",
-  "course": {
-    "_id": "...",
-    "title": "JavaScript Basics",
-    "description": "Learn the fundamentals of JavaScript",
-    "instructor": "<teacher-user-id>",
-    "level": "Beginner",
-    "category": "Programming",
-    "lessons": [],
-    "studentsEnrolled": [],
-    "studentsPassed": [],
-    "createdAt": "...",
-    "updatedAt": "..."
-  }
-}
-```
-
-Status codes:
-
-- `201` - course created
-- `403` - user is not a teacher
-- `500` - creation failure
-
-### GET `/api/courses`
-
-Return all courses.
-
-Success response:
-
-```json
-[
-  {
-    "_id": "...",
-    "title": "JavaScript Basics",
-    "description": "Learn the fundamentals of JavaScript",
-    "instructor": {
-      "_id": "...",
-      "firstName": "Jane",
-      "lastName": "Smith"
-    },
-    "level": "Beginner",
-    "category": "Programming",
-    "lessons": [],
-    "studentsEnrolled": [],
-    "studentsPassed": [],
-    "createdAt": "...",
-    "updatedAt": "..."
-  }
-]
-```
-
-Status codes:
-
-- `200` - courses returned
-- `404` - no courses found
-- `500` - fetch failure
-
-### GET `/api/courses/:id`
-
-Return one course by ID.
-
-Path params:
-
-- `id` - MongoDB course ID
-
-Success response:
-
-```json
-{
-  "_id": "...",
-  "title": "JavaScript Basics",
-  "description": "Learn the fundamentals of JavaScript",
-  "instructor": {
-    "_id": "...",
-    "firstName": "Jane",
-    "lastName": "Smith"
-  },
-  "level": "Beginner",
-  "category": "Programming",
-  "lessons": [
-    {
-      "_id": "...",
-      "title": "Introduction",
-      "content": "...",
-      "course": "...",
-      "studentsCompleted": [],
-      "createdAt": "...",
-      "updatedAt": "..."
-    }
-  ],
-  "studentsEnrolled": [],
-  "studentsPassed": [],
-  "createdAt": "...",
-  "updatedAt": "..."
-}
-```
-
-Status codes:
-
-- `200` - course returned
-- `400` - invalid course ID format
-- `404` - course not found
-- `500` - fetch failure
-
-### POST `/api/courses/addLesson`
-
-Create a lesson inside a course. This route is protected and only available to the teacher who owns the course.
-
-Headers:
-
-`Authorization: Bearer <JWT>`
-
-Request body:
-
-```json
-{
-  "title": "Introduction",
-  "content": "Lesson content or HTML",
-  "courseId": "<course-id>"
-}
-```
-
-Required fields:
-
-- `title`
-- `courseId`
-
-Optional field:
-
-- `content`
-
-Success response:
-
-```json
-{
-  "message": "Lesson created successfully",
-  "lesson": {
-    "_id": "...",
-    "title": "Introduction",
-    "content": "Lesson content or HTML",
-    "course": "<course-id>",
-    "studentsCompleted": [],
-    "createdAt": "...",
-    "updatedAt": "..."
-  }
-}
-```
-
-Status codes:
-
-- `201` - lesson created
-- `403` - user is not a teacher or does not own the course
-- `404` - course not found
-- `500` - creation failure
-
-### PATCH `/api/courses/updateLesson/:lessonId`
-
-Update a lesson owned by the authenticated teacher.
-
-Headers:
-
-`Authorization: Bearer <JWT>`
-
-Path params:
-
-- `lessonId` - MongoDB lesson ID
-
-Request body:
-
-```json
-{
-  "title": "Updated title",
-  "content": "Updated content"
-}
-```
-
-Both fields are optional. If omitted, the existing value stays unchanged.
-
-Success response:
-
-```json
-{
-  "message": "Lesson updated successfully",
-  "lesson": {
-    "_id": "...",
-    "title": "Updated title",
-    "content": "Updated content",
-    "course": "<course-id>",
-    "studentsCompleted": [],
-    "createdAt": "...",
-    "updatedAt": "..."
-  }
-}
-```
-
-Status codes:
-
-- `200` - lesson updated
-- `403` - user is not allowed to update the lesson
-- `404` - lesson or associated course not found
-- `500` - update failure
-
-## Implemented But Not Routed Yet
-
-These controller functions exist in the codebase but are not currently exposed through Express routes:
-
-- `deleteCourse`
-- `enrollInCourse`
-- `getAllLessonsofCourse`
-- `deleteLesson`
-- `getLessonById`
-
-If you want, these can be added to the routing layer later and documented here as real endpoints.
+# Learnify - Full Stack E-Learning Platform
+
+A robust MERN stack application for online learning, featuring dedicated dashboards for students and teachers, progress tracking, and interactive quizzes.
+
+## 🚀 Getting Started
+
+### Prerequisites
+- Node.js (v16+)
+- MongoDB Atlas account or local instance
+- Git
+
+### Installation
+
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/farizadam/learnify.git
+   cd learnify
+   ```
+
+2. **Backend Setup:**
+   ```bash
+   cd server
+   npm install
+   ```
+   
+   Create a `.env` file:
+   ```env
+   PORT=3000
+   MONGO_URI=your_mongodb_uri
+   JWT_SECRET=your_secret_key
+   ```
+   
+   Start the server:
+   ```bash
+   npm start
+   ```
+
+3. **Frontend Setup:**
+   ```bash
+   cd ../client
+   npm install
+   npm run dev
+   ```
+
+## 🛠 API Reference
+**Base URL:** `http://localhost:3000`
+
+**Headers:**
+- `Content-Type: application/json`
+- `Authorization: Bearer <JWT>` (for protected routes)
+
+### Authentication (`/api/auth`)
+| Endpoint | Method | Expects | Returns |
+| --- | --- | --- | --- |
+| `/register` | POST | `{firstName, lastName, email, password, role}` | Success Message |
+| `/login` | POST | `{email, password}` | `{token}` |
+| `/refresh-token` | POST | `{token}` | `{token}` (new) |
+
+### User & Teacher (`/api/users` & `/api/teacher`)
+| Endpoint | Method | Expects | Returns |
+| --- | --- | --- | --- |
+| `/user` | GET | Bearer Token | User Profile object |
+| `/users/profile` | PUT | `{bio, avatar, socials}` | Updated User object |
+| `/teacher/stats` | GET | Bearer Token (Teacher) | Metrics (Students, Ratings) |
+
+### Courses & Lessons (`/api/courses`)
+| Endpoint | Method | Expects | Returns |
+| --- | --- | --- | --- |
+| `/courses` | GET | Optional `?title=...` | Array of Courses |
+| `/courses/:id` | GET | Course ID | Course details + Lessons |
+| `/:courseId/enroll` | POST | Bearer Token | Success + Enrollment status |
+| `/courses/addLesson` | POST | `{title, content, courseId}` | New Lesson object |
+| `/lessons/:id/complete`| PATCH | Bearer Token | Updated progress data |
+
+### Quizzes (`/api/quizzes`)
+| Endpoint | Method | Expects | Returns |
+| --- | --- | --- | --- |
+| `/course/:courseId` | GET | Course ID | List of quiz questions |
+| `/:id/submit` | POST | `{answers}` | `{score, status}` |
